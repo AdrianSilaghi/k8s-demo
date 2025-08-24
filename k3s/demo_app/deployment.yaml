@@ -87,7 +87,7 @@ metadata:
   name: app
   namespace: k8s-demo
 spec:
-  clusterIP: None
+  type: ClusterIP
   selector:
     app: app
   ports:
