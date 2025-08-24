@@ -137,7 +137,7 @@ metadata:
   namespace: k8s-demo
 spec:
   parentRefs:
-    - name: public-gw
+    - name: gateway-class
       sectionName: https
   hostnames: [ "listspree.com" ]
   rules:
@@ -155,7 +155,7 @@ metadata:
   namespace: k8s-demo
 spec:
   parentRefs:
-    - name: public-gw
+    - name: gateway-class
       sectionName: http
   hostnames: [ "listspree.com" ]
   rules:
