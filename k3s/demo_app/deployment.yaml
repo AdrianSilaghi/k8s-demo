@@ -43,7 +43,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: registry.local:30500/k8s-demo-app:latest
+          image: localhost:30500/k8s-demo-app:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
