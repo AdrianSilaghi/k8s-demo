@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: k8s-demo-app
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=todo
+      - PGPASSWORD=todo123
+      - PGDATABASE=todoapp
+      - REDIS_URL=redis://redis:6379
+      - CACHE_TTL_SECONDS=10
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: k8s-demo-postgres
+    environment:
+      - POSTGRES_DB=todoapp
+      - POSTGRES_USER=todo
+      - POSTGRES_PASSWORD=todo123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todo -d todoapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: k8s-demo-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
+  redisdata:
+
+

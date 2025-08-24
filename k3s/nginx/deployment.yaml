@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: backend
+          image: nginx
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "0Gi"
+            limits:
+              cpu: "4000m"
+              memory: "2Gi"
