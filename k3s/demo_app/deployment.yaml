@@ -87,7 +87,8 @@ metadata:
   name: app
   namespace: k8s-demo
 spec:
-  type: ClusterIP
+  type: LoadBalancer
+  loadBalancerIP: 139.59.213.42
   selector:
     app: app
   ports:
