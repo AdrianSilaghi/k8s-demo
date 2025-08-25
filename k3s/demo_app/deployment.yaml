@@ -87,6 +87,8 @@ metadata:
   name: app
   namespace: k8s-demo
 spec:
+  type: LoadBalancer
+  loadBalancerIP: 139.59.213.42
   selector:
     app: app
   ports:
@@ -94,72 +96,38 @@ spec:
       port: 3000
       targetPort: http
 ---
-apiVersion: gateway.networking.k8s.io/v1
-kind: GatewayClass
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
 metadata:
-  name: gateway-class
+  name: redirect-to-https
+  namespace: k8s-demo
 spec:
-  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  redirectScheme:
+    scheme: https
+    permanent: true
 ---
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: gateway-class
+  name: app
   namespace: k8s-demo
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: k8s-demo-redirect-to-https@kubernetescrd
 spec:
-  gatewayClassName: gateway-class
-  addresses:
-    - type: IPAddress
-      value: 139.59.213.42
-  listeners:
-    - name: http
-      hostname: listspree.com
-      protocol: HTTP
-      port: 80
-      allowedRoutes: { namespaces: { from: Same } }
-    - name: https
-      hostname: listspree.com
-      protocol: HTTPS
-      port: 443
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - kind: Secret
-            name: listspree-com-tls
-      allowedRoutes: { namespaces: { from: Same } }
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: app-https
-  namespace: k8s-demo
-spec:
-  parentRefs:
-    - name: gateway-class
-      sectionName: https
-  hostnames: [ "listspree.com" ]
+  ingressClassName: traefik
+  tls:
+    - hosts: [listspree.com]
+      secretName: app-tls
   rules:
-    - matches:
-        - path: { type: PathPrefix, value: / }
-      backendRefs:
-        - name: app
-          port: 3000
-
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: app-http
-  namespace: k8s-demo
-spec:
-  parentRefs:
-    - name: gateway-class
-      sectionName: http
-  hostnames: [ "listspree.com" ]
-  rules:
-    - filters:
-        - type: RequestRedirect
-          requestRedirect: { scheme: https, statusCode: 301 }
-
+    - host: listspree.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app
+                port:
+                  name: http
