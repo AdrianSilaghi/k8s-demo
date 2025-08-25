@@ -10,7 +10,7 @@ metadata:
   namespace: k8s-demo
 data:
   PORT: "3000"
-  PGHOST: "postgres.default.svc.cluster.local"
+  PGHOST: "postgres-lb.default.svc.cluster.local"
   PGPORT: "5432"
   PGUSER: "todo"
   PGDATABASE: "todoapp"
