@@ -34,6 +34,19 @@ spec:
       labels:
         app: postgres
     spec:
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "db"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: role
+                    operator: In
+                    values: [ "db" ]
       securityContext:
         fsGroup: 999
       containers:

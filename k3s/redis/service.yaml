@@ -28,6 +28,19 @@ spec:
       labels:
         app: redis
     spec:
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "db"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: role
+                    operator: In
+                    values: [ "db" ]
       containers:
         - name: redis
           image: redis:7-alpine

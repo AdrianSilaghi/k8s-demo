@@ -30,6 +30,14 @@ spec:
       labels:
         app: registry
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: role
+                    operator: NotIn
+                    values: [ "db" ]
       containers:
         - name: registry
           image: registry:2
